@@ -15,11 +15,12 @@ const Hud = () => {
   const [data, setData] = useState({});
   const [wayPoints, setWayPoints] = useState([]);
   const [markers, setMarkers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   let retryCount = 0;
 
   useEffect(() => {
+    let timeoutId;
+  
     const fetchData = async () => {
       if (retryCount >= 100) {
         console.log("Maximum retries reached. Stopping further requests.");
@@ -30,35 +31,42 @@ const Hud = () => {
           "https://missionplanner-api.onrender.com/tdata-data"
         );
         setData(response.data);
-        setLoading(false);
-        setTimeout(fetchData, 5);
+        timeoutId = setTimeout(fetchData, 5);
       } catch (error) {
         console.log("Error from Data.");
         retryCount++;
-        setLoading(false);
-        setTimeout(fetchData, 5);
+        timeoutId = setTimeout(fetchData, 5);
       }
     };
+  
     fetchData();
-    return () => clearTimeout(fetchData);
-  });
+  
+    return () => clearTimeout(timeoutId);
+  }, []);
+  
 
   useEffect(() => {
+    let timerId;
+  
     const fetchWayPoints = async () => {
       try {
         const points = await axios.get(
           "https://missionplanner-api.onrender.com/waypoints-data"
         );
         setWayPoints(points.data);
-        setTimeout(fetchWayPoints, 5);
+        timerId = setTimeout(fetchWayPoints, 5); 
       } catch (error) {
         console.log("Error from WayPoints");
-        setTimeout(fetchWayPoints, 5);
+        timerId = setTimeout(fetchWayPoints, 5);
       }
     };
+  
     fetchWayPoints();
-    return () => clearTimeout(fetchWayPoints);
-  });
+  
+    // Cleanup function to clear the timeout when the component unmounts
+    return () => clearTimeout(timerId);
+  }, []); // Empty dependency array to run effect only once on component mount
+  
 
   const [vehicleHeading, setVehicleHeading] = useState(0);
   const [degree, setDegree] = useState(null);
@@ -83,19 +91,19 @@ const Hud = () => {
   const [val5, setVal5] = useState(null);
 
   const [message, setMessage] = useState(null);
-  const [battery, setBattery] = useState(null);
+
   const [pitch, setPitch] = useState(null);
   const [varPitch, setVarPitch] = useState(0);
   const [roll, setRoll] = useState(0);
-
   const [airSpeed, setAirSpeed] = useState(null);
   const [groundSpeed, setGroundSpeed] = useState(null);
   const [mode, setMode] = useState(null);
 
   const mapRef = useRef(null);
-  const locationRef = useRef(null);
   const vehicleRef = useRef(null);
   const [map, setMap] = useState(null);
+  const [initialRender, setInitialRender] = useState(true);
+  const [polyLine, setPolyLine] = useState(null)
 
   var locationIcon = L.icon({
     iconUrl: locIcon,
@@ -115,8 +123,7 @@ const Hud = () => {
   /* 16.2729542 80.4375805 */
 
   const [latitude, setLatitude] = useState(null);
-  const [longtitude, setLongtitude] = useState(null);
-  let firstTime = true;
+  const [longitude, setLongitude] = useState(null);
 
   useEffect(() => {
     setVehicleHeading(degree);
@@ -242,59 +249,20 @@ const Hud = () => {
   }, [degree]);
 
   useEffect(() => {
+    setVarPitch(pitch * 5);
+
     setValue1(speed - 2);
     setValue2(speed - 1);
     setValue3(speed);
     setValue4(speed + 1);
     setValue5(speed + 2);
-  }, [speed]);
-
-  useEffect(() => {
+  
     setVal1(altitude - 2);
     setVal2(altitude - 1);
     setVal3(altitude);
     setVal4(altitude + 1);
     setVal5(altitude + 2);
-  }, [altitude]);
-
-  useEffect(() => {
-    setBattery(battery);
-  }, [battery]);
-
-  useEffect(() => {
-    setVarPitch(pitch * 5);
-    // let temp2 = pitch * 5;
-    // const ins = document.getElementById("sky");
-    // const newBottomValue = `calc(50% - ${temp2}px)`;
-    // ins.style.bottom = newBottomValue;
-  }, [pitch]);
-
-  // useEffect(() => {
-  //   let dg = 0 - roll;
-  //   let temp1 = dg + "deg";
-  //   document.getElementById("sky").style.transform = "rotate(" + temp1 + ")";
-  //   document.getElementById("compass").style.transform =
-  //     "rotate(" + temp1 + ")";
-  //   document.getElementById("pitch-lines").style.transform =
-  //     "rotate(" + temp1 + ")";
-  //   document.getElementById("median-line").style.transform =
-  //     "rotate(" + temp1 + ")";
-  // }, [roll]);
-
-  // useEffect(() => {
-  //   let deg = 0 - roll;
-  //   let temp2 = deg + "deg";
-  //   document.getElementById("compass").style.transform =
-  //     "rotate(" + temp2 + ")";
-  // }, [roll]);
-
-  // Create marker once
-    // locationRef.current = L.marker([16.2726921, 80.4367664], {
-    //   icon: locationIcon,
-    // })
-    //   .addTo(leafletMap)
-    //   .bindPopup("Source Location.")
-    //   .openPopup();
+  }, [speed, altitude, pitch]);
 
   useEffect(() => {
     // if (!mapRef.current) return;
@@ -318,76 +286,80 @@ const Hud = () => {
   }, []);
 
   useEffect(() => {
-    // preventing adding marker again and again using the below line
-    if (vehicleRef.current) return;
+    // Prevent adding marker again if it already exists
+    if (vehicleRef.current || !map || !latitude || !longitude) return;
+  
+    // Add marker to the map
+    vehicleRef.current = L.marker([latitude, longitude], {
+      icon: planeIcon,
+    }).addTo(map);
+  }, [map, latitude, longitude]);
 
-    // if map exists and lat, long are not null, then add marker
-    if (map && latitude !== undefined && longtitude !== undefined) {
-      vehicleRef.current = L.marker([latitude, longtitude], {
-        icon: planeIcon,
-      }).addTo(map);
-    }
-  }, [latitude, longtitude]);
 
   useEffect(() => {
-    if (firstTime && latitude == 0 && longtitude == 0) {
-      firstTime = !firstTime;
+    if (initialRender && latitude === 0 && longitude === 0) {
+      setInitialRender(false);
       return;
     }
-
+  
     // Update map position when latitude or longitude changes
-    if (map && latitude !== undefined && longtitude !== undefined) {
-      map.setView([latitude, longtitude]);
-
+    if (map && latitude !== undefined && longitude !== undefined) {
+      map.setView([latitude, longitude]);
+  
       // if vehicle exists, then update its position
       if (vehicleRef.current) {
-        vehicleRef.current.setLatLng([latitude, longtitude]);
+        vehicleRef.current.setLatLng([latitude, longitude]);
         vehicleRef.current.setRotationOrigin("center center");
+        vehicleRef.current.setRotationAngle(vehicleHeading);
       }
     }
-  }, [map, latitude, longtitude]);
-
-  useEffect(() => {
-    // Update rotation angle when degree changes
-    if (vehicleRef.current && degree !== undefined) {
-      vehicleRef.current.setRotationAngle(vehicleHeading);
-    }
-  }, [vehicleHeading]);
+  }, [map, latitude, longitude, vehicleHeading, initialRender]);
 
   useEffect(() => {
     if (wayPoints.length === 0) return;
-
-    const polyPoints = [];
-
+  
     if (map) {
+      // Clear existing markers and polylines from the map
+      if (markers.length > 0) {
+        markers.forEach(marker => map.removeLayer(marker));
+        setMarkers([]); // Clear markers state
+      }
+      if (polyLine) {
+        map.removeLayer(polyLine);
+      }
+  
+      const polyPoints = [];
       const newMarkers = [];
+  
       wayPoints.forEach((dict) => {
         const { lat, lng } = dict;
-        const markers = L.marker([lat, lng], {
-          icon: locationIcon,
-        }).addTo(map);
+        const marker = L.marker([lat, lng], { icon: locationIcon }).addTo(map);
         polyPoints.push([lat, lng]);
-        newMarkers.push(markers);
+        newMarkers.push(marker);
       });
+  
+      // Add polyline to the map
+      const newPolyLine = L.polyline(polyPoints, { color: "skyblue" }).addTo(map);
+  
+      // Update state with new markers and polyline
       setMarkers(newMarkers);
+      setPolyLine(newPolyLine);
     }
-    // console.log(polyPoints);
-    var polyLine = L.polyline(polyPoints, { color: "skyblue" }).addTo(map);
   }, [wayPoints]);
+  
 
   useEffect(() => {
     setDegree(parseInt(data?.Target?.input?.yaw));
     setSpeed(parseInt(data?.Target?.input?.verticalspeed));
     setAltitude(parseInt(data?.Target?.input?.alt));
     setMessage(String(data?.Target?.input?.message));
-    setBattery(parseInt(data?.Target?.input?.battery_remaining));
     setPitch(parseInt(data?.Target?.input?.pitch));
     setRoll(parseFloat(data?.Target?.input?.roll).toFixed(4));
     setAirSpeed(parseInt(data?.Target?.input?.airspeed));
     setGroundSpeed(parseInt(data?.Target?.input?.groundspeed));
     setMode(String(data?.Target?.input?.mode));
     setLatitude(data?.Target?.input?.lat);
-    setLongtitude(data?.Target?.input?.lng);
+    setLongitude(data?.Target?.input?.lng);
   }, [data]);
 
   return (
