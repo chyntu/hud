@@ -17,7 +17,8 @@
   flex-direction: column;
   background-color: rgb(0, 0, 0);
   /* #05364a */
-  border: 7px solid rgb(13, 34, 42);
+  /* border: 7px solid rgb(13, 34, 42); */
+  border: 5px solid #00171f;
   overflow: hidden;
 }
 
@@ -25,16 +26,19 @@
   width: 40%;
   background: skyblue;
   /* filter: blur(5px); */
-  border-bottom: 7px solid rgb(13, 34, 42);
+  /* border-bottom: 7px solid rgb(13, 34, 42);
   border-right: 7px solid rgb(13, 34, 42);
-  border-top: 7px solid rgb(13, 34, 42);
+  border-top: 7px solid rgb(13, 34, 42); */
+  border-bottom: 5px solid #00171f;
+  border-right: 5px solid #00171f;
+  border-top: 5px solid #00171f;
 }
 
 .hud-header {
   height: 12%;
   display: flex;
   flex-direction: row;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .hud-top-left {
@@ -47,13 +51,47 @@
   width: 20%;
   height: 100%;
   /* background-color: black; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ri-link-m {
+  font-size: 2.5vw;
+}
+
+.connected {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3vw;
+  font-weight: bold;
+  font-family: "B612", sans-serif;
+  color: rgb(0, 255, 0);
+}
+
+.disconnected {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3vw;
+  font-weight: bold;
+  font-family: "B612", sans-serif;
+  color: red;
 }
 
 .hud-direction {
   width: 60%;
   height: 90%;
-  background-color: rgba(12.8, 12.8, 12.8);
-  border: 2px solid white;
+  /* background-color: rgba(12.8, 12.8, 12.8); */
+  background-color: #00171f;
+  border: 3px solid white;
   /* rgb(0, 0, 0, 0.6) */
   /* border-left: 3px solid #05364a;
   border-right: 3px solid #05364a;
@@ -92,7 +130,7 @@
   font-size: 1.5vw;
   font-weight: bold;
   font-family: "B612", sans-serif;
-  color: wheat;
+  color: white;
 }
 
 .hud-body {
@@ -139,7 +177,7 @@
   height: 5%;
   object-fit: contain;
   position: absolute;
-  z-index: 2;
+  z-index: 3;
 }
 
 .pitch-lines {
@@ -148,6 +186,104 @@
   position: absolute;
   top: 28%;
   z-index: 2;
+}
+
+.arm-message {
+  width: 100%;
+  height: 10%;
+  position: absolute;
+  top: 35%;
+  display: flex;
+  justify-content: center;
+  font-size: 2vw;
+  -webkit-text-stroke: 0.9px black;
+  font-weight: bolder;
+  font-family: "B612", sans-serif;
+  color: rgb(255, 0, 0);
+  z-index: 3;
+}
+
+.armed {
+  font-size: 3vw;
+  animation: hideanimation 0s ease-in 8s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes hideanimation {
+  to {
+    visibility: hidden;
+  }
+}
+
+.hud-params-top {
+  width: 100%;
+  height: 10%;
+  position: absolute;
+  top: 1%;
+  display: flex;
+  flex-direction: row;
+  z-index: 4;
+}
+
+.hud-top-param1 {
+  width: 50%;
+  font-size: 1.3vw;
+  -webkit-text-stroke: 0.9px black;
+  font-weight: bold;
+  font-family: "B612", sans-serif;
+  color: white;
+  display: flex;
+  justify-self: start;
+  align-items: flex-start;
+  padding-left: 1%;
+}
+
+.hud-top-param2 {
+  width: 50%;
+  font-size: 1.3vw;
+  -webkit-text-stroke: 0.9px black;
+  font-weight: bold;
+  font-family: "B612", sans-serif;
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-right: 1%;
+}
+
+.hud-params-bottom {
+  width: 100%;
+  height: 25%;
+  position: absolute;
+  bottom: 1%;
+  display: flex;
+  flex-direction: row;
+}
+
+.hud-bottom-param1 {
+  width: 50%;
+  font-size: 1.3vw;
+  -webkit-text-stroke: 0.9px black;
+  font-weight: bold;
+  font-family: "B612", sans-serif;
+  color: white;
+  display: flex;
+  justify-self: start;
+  align-items: flex-end;
+  padding-left: 1%;
+}
+
+.hud-bottom-param2 {
+  width: 50%;
+  font-size: 1.3vw;
+  -webkit-text-stroke: 0.9px black;
+  font-weight: bold;
+  font-family: "B612", sans-serif;
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding-right: 1%;
 }
 
 .roll-lines {
@@ -172,6 +308,7 @@
   position: absolute;
   color: red;
   top: 30%;
+  font-weight: bolder;
   /* margin-top: 50px; */
 }
 
@@ -179,12 +316,12 @@
   position: absolute;
   width: 7000%;
   height: 7000%;
-  border-bottom: 2px solid white;
+  border-bottom: 3px solid white;
   /* background-color: #05364a; */
   background: linear-gradient(
     180deg,
-    rgba(88, 153, 226, 1) 99.5%,
-    rgba(190, 212, 238, 1)
+    rgb(75, 142, 220) 99.5%,
+    rgb(148, 183, 226)
   );
 
   z-index: 1;
@@ -201,8 +338,10 @@
 .hud-speedometer {
   width: 90%;
   height: 100%;
-  background-color: rgba(12.8, 12.8, 12.8);
-  border: 2px solid white;
+  /* background-color: rgba(12.8, 12.8, 12.8); */
+  background-color: #00171f;
+  border: 3px solid white;
+  /* border: 2px solid wheat; */
   /* border: 3px solid black; */
 }
 
@@ -224,7 +363,7 @@
 
 .speed-line i {
   font-size: 3vw;
-  color: white;
+  color: wheat;
   /* color: red; */
 }
 
@@ -243,7 +382,7 @@
   font-size: 1.5vw;
   font-weight: bold;
   font-family: "B612", sans-serif;
-  color: wheat;
+  color: white;
 }
 
 .hud-altitude {
@@ -256,8 +395,10 @@
 .hud-altimeter {
   width: 90%;
   height: 100%;
-  background-color: rgba(12.8, 12.8, 12.8);
-  border: 2px solid white;
+  /* background-color: rgba(12.8, 12.8, 12.8); */
+  background-color: #00171f;
+  border: 3px solid white;
+  /* border: 2px solid wheat; */
   /* border: 3px solid black; */
 }
 
@@ -279,7 +420,7 @@
 
 .alt-line i {
   font-size: 3vw;
-  color: white;
+  color: wheat;
   /* color: red; */
 }
 
@@ -298,7 +439,7 @@
   font-size: 1.5vw;
   font-weight: bold;
   font-family: "B612", sans-serif;
-  color: wheat;
+  color: white;
 }
 
 .hud-footer {
@@ -306,7 +447,7 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: start;
+  align-items: flex-start;
   /* background-color: aliceblue; */
 }
 
@@ -321,12 +462,14 @@
 .hud-quicks {
   width: 98%;
   height: 95%;
-  background-color: rgba(12.8, 12.8, 12.8);
-  border: 2px solid white;
+  /* background-color: rgba(12.8, 12.8, 12.8); */
+  background-color: #00171f;
+  border: 3px solid white;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   position: relative;
+  left: 1%;
 }
 
 .quicks-row1 {
@@ -352,7 +495,7 @@
   height: 30%;
   display: flex;
   justify-content: center;
-  color: wheat;
+  color: white;
   font-size: 1vw;
   font-weight: bold;
   font-family: "B612", sans-serif;
@@ -374,19 +517,19 @@
 }
 
 #item2-Val {
-  color:coral;
+  color: coral;
 }
 
 #item3-Val {
-  color:cornflowerblue;
+  color: cornflowerblue;
 }
 
 #item4-Val {
-  color:darkorange;
+  color: darkorange;
 }
 
 #item5-Val {
-  color:greenyellow;
+  color: greenyellow;
 }
 
 #item6-Val {
@@ -403,13 +546,14 @@
 }
 
 .hud-msg {
-  width: 98%;
+  width: 97%;
   height: 95%;
-  background-color: rgba(12.8, 12.8, 12.8);
-  border: 2px solid white;
+  /* background-color: rgba(12.8, 12.8, 12.8); */
+  background-color: #00171f;
+  border: 3px solid white;
   border-radius: 10px;
-  color: wheat;
-  font-size: 1.0vw;
+  color: white;
+  font-size: 1.35vw;
   font-weight: bold;
   font-family: "B612", sans-serif;
   display: flex;
